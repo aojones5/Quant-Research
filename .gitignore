@@ -1,0 +1,5 @@
+// Ignore the following files and directories
+data/
+*.pth
+__pycache__/
+venv/
