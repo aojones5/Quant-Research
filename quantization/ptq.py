@@ -55,7 +55,7 @@ def get_model_size_mb(model_path):
 
 def main():
     device = "cpu" # Quantization is typically done on CPU
-    torch.backends.quantized.engine = 'onednn' # Set quantization engine to onednn for x86 CPUs
+    torch.backends.quantized.engine = 'onednn' # Set quantization engine 
 
     transform = transforms.Compose([
         transforms.ToTensor(),

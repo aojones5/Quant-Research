@@ -1,7 +1,7 @@
 #cnn code
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.quantization as quantization
+import torch.ao.quantization as quantization
 
 class SimpleCNN(nn.Module):
     def __init__(self): #params for class
@@ -9,7 +9,7 @@ class SimpleCNN(nn.Module):
 
         self.quant = quantization.QuantStub() #quantization stub to prepare the model for quantization
         self.dequant = quantization.DeQuantStub() #dequantization stub to convert quantized output back to floating point
-        
+
         self.features = nn.Sequential( #sequential container to hold convolutional layers and pooling layers
              nn.Conv2d(3, 32, kernel_size=3, padding=1), #input channels 3 for RGB, output channels 32
              nn.BatchNorm2d(32),
@@ -42,8 +42,9 @@ class SimpleCNN(nn.Module):
         x = self.dequant(x) #dequantize the output 
         return x
     
-    def fuse_model(self):
-        quantization.fuse_modules(self.features, [['0', '1', '2'],
-                                                  ['4', '5', '6'],
-                                                  ['8', '9', '10']], inplace=True)
-        quantization.fuse_modules(self.classifier, [['1', '2']], inplace=True)
+    def fuse_model(self, is_qat=False): #function to fuse layers for better quantization performance, is_qat flag indicates if the model is being prepared for quantization-aware training
+        pass
+        # quantization.fuse_modules(self.features, [['0', '1', '2'],
+        #                                           ['4', '5', '6'],
+        #                                           ['8', '9', '10']], inplace=True, is_qat=is_qat) #fuse convolutional layers with batch normalization and activation layers for better quantization performance
+        # quantization.fuse_modules(self.classifier, [['1', '2']], inplace=True, is_qat=is_qat) #fuse fully connected layer with activation layer for better quantization performance
