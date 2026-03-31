@@ -77,18 +77,6 @@ This project was created to explore practical tradeoffs in neural network quanti
 
 ---
 
-## Future Work
-
-Possible next steps include:
-
-- testing additional CNN architectures
-- expanding to other datasets
-- comparing different quantization backends
-- adding latency measurements on different hardware
-- improving QAT with layer fusion support
-
----
-
 ## Dataset
 
 This project uses the **CIFAR-10** dataset, which contains 60,000 32x32 color images across 10 classes.
