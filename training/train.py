@@ -25,20 +25,22 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=32, shuffle=False)
 
 #Initialize the model, loss function, and optimizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu") #check if GPU is available and set device accordingly
-model = cnn.simpleCNN().to(device) #initialize the CNN model and move it to the appropriate device
+model = cnn.SimpleCNN().to(device) #initialize the CNN model and move it to the appropriate device
 criterion = nn.CrossEntropyLoss() #use cross-entropy loss for multi-class classification
 optimizer = optim.Adam(model.parameters(), lr=0.001) 
+scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5) #learning rate scheduler to reduce learning rate by a factor of 0.5 every 10 epochs
+
 
 #Training loop
-num_epochs = 5
+num_epochs = 20
 for epoch in range(num_epochs):
+    model.train() #set model to training mode
     running_loss = 0.0
 
     for inputs, labels in trainloader:
         inputs, labels = inputs.to(device), labels.to(device) #move inputs and labels to the appropriate device
 
         optimizer.zero_grad() #zero the parameter gradients
-
         outputs = model(inputs) #forward pass
         loss = criterion(outputs, labels) #compute loss
         loss.backward() #backward pass
@@ -46,9 +48,11 @@ for epoch in range(num_epochs):
 
         running_loss += loss.item() #accumulate loss for reporting
 
+    scheduler.step() #update learning rate based on the scheduler    
     print(f'Epoch {epoch + 1}/{num_epochs}, Loss: {running_loss / len(trainloader):.4f}') #print average loss for the epoch
 
 #Evaluate the model on the test set
+model.eval() #set model to evaluation mode
 correct = 0
 total = 0
 
