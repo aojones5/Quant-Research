@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-
+import time
 import torch    
 import torch.nn as nn
 import torchvision
@@ -24,6 +24,33 @@ def evaluate_model(model, dataloader, device="cpu"):
             correct += (predicted == labels).sum().item()
 
     return 100 * correct / total
+
+def measure_inference_time(model, dataloader, device="cpu", num_batches=100):
+    model.eval()
+    total_time = 0.0
+    batch_count = 0
+
+    with torch.no_grad():
+        for inputs, _ in dataloader:
+            inputs = inputs.to(device)
+            
+            start_time = time.time()
+            _ = model(inputs)
+            end_time = time.time()
+
+            total_time += (end_time - start_time)
+            batch_count += 1
+
+            if batch_count >= num_batches:
+                break
+
+    return total_time / batch_count     
+
+
+def get_model_size_mb(model_path):
+    size_bytes = Path(model_path).stat().st_size
+    size_mb = size_bytes / (1024 * 1024)
+    return size_mb
 
 def main(): 
     device = "cpu" # Quantization-aware training is typically done on CPU
@@ -84,8 +111,12 @@ def main():
 
     #eval 
     accuracy = evaluate_model(quantized_model, testloader, device)
+    timing = measure_inference_time(quantized_model, testloader, device)
     print(f'QAT Accuracy: {accuracy:.2f}%')
+    print(f'QAT Avg Inference Time: {timing:.6f} s/batch')
     torch.save(quantized_model.state_dict(), "models/cnn_int8_qat.pth")
+    qat_model_size = get_model_size_mb('models/cnn_int8_qat.pth')
+    print(f'QAT Model Size: {qat_model_size:.2f} MB\n')
 
 if __name__ == "__main__":   
     main()

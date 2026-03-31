@@ -70,13 +70,13 @@ def main():
 
     #load trained FP32 model
     fp32_model = cnn.SimpleCNN()
-    fp32_model.load_state_dict(torch.load("models/cnnfp32.pth", map_location=device))
+    fp32_model.load_state_dict(torch.load("models/cnnfp32_finetuned.pth", map_location=device))
     fp32_model.eval()
     fp32_model.fuse_model() #fuse layers for quantization
 
     #save FP32 model size and accuracy
-    torch.save(fp32_model.state_dict(), 'models/cnnfp32quant.pth')
-    fp32_model_size = get_model_size_mb('models/cnnfp32quant.pth')
+    torch.save(fp32_model.state_dict(), 'models/cnnfp32quant_finetuned.pth')
+    fp32_model_size = get_model_size_mb('models/cnnfp32quant_finetuned.pth')
 
     fp32_model_accuracy = evaluate_model(fp32_model, testloader, device)
     fp32_inference_time = measure_inference_time(fp32_model, testloader, device)
@@ -98,8 +98,8 @@ def main():
     quantized_model = convert(prepared_model)
 
     #save quantized model size and accuracy
-    torch.save(quantized_model.state_dict(), 'models/cnn_int8_ptq.pth')
-    ptq_model_size = get_model_size_mb('models/cnn_int8_ptq.pth')
+    torch.save(quantized_model.state_dict(), 'models/cnn_int8_ptq_finetuned.pth')
+    ptq_model_size = get_model_size_mb('models/cnn_int8_ptq_finetuned.pth')
 
     ptq_model_accuracy = evaluate_model(quantized_model, testloader, device)
     ptq_inference_time = measure_inference_time(quantized_model, testloader, device)
